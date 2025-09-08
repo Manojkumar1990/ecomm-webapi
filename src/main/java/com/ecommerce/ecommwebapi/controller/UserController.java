@@ -1,7 +1,7 @@
-package com.ecommerce.ecomm_api.controller;
+package com.ecommerce.ecommwebapi.controller;
 
-import com.ecommerce.ecomm_api.models.User;
-import com.ecommerce.ecomm_api.service.UserService;
+import com.ecommerce.ecommwebapi.models.User;
+import com.ecommerce.ecommwebapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
@@ -15,6 +15,10 @@ public class UserController {
     }
     @PostMapping("userValidation")
     public String validateUser(User user){
-        return "Valid User";
+        return userService.validateUser(user);
+    }
+    @PostMapping("createUser")
+    public String createUser(User user){
+        return userService.createUser(user);
     }
 }

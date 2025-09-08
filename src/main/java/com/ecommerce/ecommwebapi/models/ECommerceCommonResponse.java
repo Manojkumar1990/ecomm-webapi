@@ -1,4 +1,4 @@
-package com.ecommerce.ecomm_api.models;
+package com.ecommerce.ecommwebapi.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

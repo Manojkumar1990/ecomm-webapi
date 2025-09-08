@@ -1,4 +1,4 @@
-package com.ecommerce.ecomm_api.dao;
+package com.ecommerce.ecommwebapi.dao;
 
 import jakarta.persistence.*;
 import jakarta.annotation.Nonnull;
@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "products")
-public class Product {
+public class ProductDAO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long product_id;

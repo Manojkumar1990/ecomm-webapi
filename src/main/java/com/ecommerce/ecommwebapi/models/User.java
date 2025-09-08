@@ -2,6 +2,8 @@ package com.ecommerce.ecommwebapi.models;
 
 import lombok.*;
 
+import java.util.Date;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -13,5 +15,6 @@ public class User {
     private String password;
     private String emailId;
     private String address;
-
+    private Date createTime;
+    private Date updateTime;
 }

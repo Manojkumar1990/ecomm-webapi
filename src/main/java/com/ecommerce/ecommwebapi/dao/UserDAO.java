@@ -1,8 +1,10 @@
 package com.ecommerce.ecommwebapi.dao;
 
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.*;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Date;
 
 @Setter
 @Getter
@@ -16,27 +18,30 @@ public class UserDAO {
     @Column(name = "user_id")
     private Long user_id;
 
-    @Nonnull
-    @Column(name = "first_name")
+    @NotNull
+    @Column(name = "first_name",nullable = false)
     private String firstName;
 
-    @Nonnull
-    @Column(name = "last_name")
+    @NotNull
+    @Column(name = "last_name",nullable = false)
     private String lastName;
 
-    @Nonnull
-    @Column(name = "email_id", unique = true)
+    @NotNull
+    @Column(name = "email_id", nullable = false, unique = true)
     private String emailId;
 
-    @Nonnull
-    @Column(name="address")
+    @NotNull
+    @Column(name="address",nullable = false)
     private String address;
 
-    @Nonnull
+    //@NotNull
     @Column(name="password")
     private String password;
 
-//    @GeneratedValue(strategy = GenerationType.AUTO)
-//    private Date createTime;
+    @Column(name="create_time",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",updatable = false)
+    private Date createTime;
+
+    @Column(name="update_time",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Date updateTime;
 
 }

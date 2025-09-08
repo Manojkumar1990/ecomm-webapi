@@ -1,6 +1,7 @@
 package com.ecommerce.ecommwebapi.service;
 
 import com.ecommerce.ecommwebapi.dao.UserDAO;
+import com.ecommerce.ecommwebapi.models.ECommerceCommonResponse;
 import com.ecommerce.ecommwebapi.models.User;
 import com.ecommerce.ecommwebapi.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -34,26 +35,89 @@ public class UserService {
         return null;
     }
 
-    public String validateUser(User user) {
+    public ECommerceCommonResponse validateUser(User user) {
+        ECommerceCommonResponse response = new ECommerceCommonResponse();
         var dbUser = userRepository.findByEmailId(user.getEmailId());
         if(dbUser!=null){
-            if(dbUser.getPassword().equals(user.getPassword()))
-                return "Success";
-            else
-                return "Invalid User/Password";
+            if(dbUser.getPassword().equals(user.getPassword())) {
+                response.setReturnCode(0);
+                response.setErrorMessage("Success");
+                return response;
+            }else {
+                response.setReturnCode(1);
+                response.setErrorMessage("Invalid User/Password");
+                return response;
+            }
         }else{
-            return "User does not exist";
+            response.setReturnCode(1);
+            response.setErrorMessage("User does not exist");
+            return response;
         }
     }
 
-    public String createUser(User user) {
+    public ECommerceCommonResponse createUser(User user) {
+        ECommerceCommonResponse response = new ECommerceCommonResponse();
+         var dbUser = userRepository.findByEmailId(user.getEmailId());
+         if(dbUser!=null){
+             response.setReturnCode(1);
+                response.setErrorMessage("User already exists");
+             return response;
+         }
         try {
             UserDAO userDAO = modelMapper.map(user, UserDAO.class);
             userRepository.save(userDAO);
-            return "Success";
+            response.setReturnCode(0);
+            response.setErrorMessage("Success");
+            return response;
         }catch (Exception ex){
-            System.out.println(ex);
-            return "Failed to create user";
+            response.setReturnCode(1);
+            response.setErrorMessage("Failed to create user");
+            return response;
+        }
+    }
+
+    public ECommerceCommonResponse updateProfile(User user) {
+        ECommerceCommonResponse response = new ECommerceCommonResponse();
+        var dbUser = userRepository.findByEmailId(user.getEmailId());
+        if(dbUser!=null){
+            try {
+                dbUser.setFirstName(user.getFirstName());
+                dbUser.setLastName(user.getLastName());
+                dbUser.setAddress(user.getAddress());
+                userRepository.save(dbUser);
+                response.setReturnCode(0);
+                response.setErrorMessage("Success");
+                return response;
+            }catch (Exception ex){
+                response.setReturnCode(1);
+                response.setErrorMessage("Failed to update profile");
+                return response;
+            }
+        }
+        response.setReturnCode(1);
+        response.setErrorMessage("User does not exist");
+        return response;
+    }
+
+    public ECommerceCommonResponse updatePassword(User user) {
+        ECommerceCommonResponse response = new ECommerceCommonResponse();
+        var dbUser = userRepository.findByEmailId(user.getEmailId());
+        if(dbUser!=null){
+            if(dbUser.getPassword().equals(user.getPassword())) {
+                dbUser.setPassword(user.getPassword());
+                userRepository.save(dbUser);
+                response.setReturnCode(0);
+                response.setErrorMessage("Success");
+                return response;
+            }else {
+                response.setReturnCode(1);
+                response.setErrorMessage("Invalid User/Password");
+                return response;
+            }
+        }else{
+            response.setReturnCode(1);
+            response.setErrorMessage("User does not exist");
+            return response;
         }
     }
 }

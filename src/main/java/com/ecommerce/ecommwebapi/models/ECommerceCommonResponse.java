@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ECommerceCommonResponse {
-    private String returnCode;
+    private int returnCode;
     private String errorMessage;
 
 }

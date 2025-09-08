@@ -1,12 +1,17 @@
-package com.ecommerce.dao;
+package com.ecommerce.ecomm_api.dao;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
-import lombok.NonNull;
+import lombok.*;
 
 import java.util.Date;
 
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +26,7 @@ public class User {
     @Nonnull
     private String email_id;
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Date createTime;
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    private Date createTime;
 
 }

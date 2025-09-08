@@ -6,7 +6,7 @@ import com.ecommerce.ecommwebapi.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-//import org.modelmapper.ModelMapper;
+import org.modelmapper.ModelMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +20,11 @@ public class UserService {
     public List<User> getAllUsers() {
         var users =userRepository.findAll();
         if(users!=null && users.size()>0){
+            ModelMapper modelMapper = new ModelMapper();
+            modelMapper.typeMap(UserDAO.class, User.class)
+                    .addMappings(
+                            mapper -> {mapper.skip(User::setPassword);}
+                    );
             List<User> userList = new ArrayList<>();
             for(var user:users){
                 userList.add(modelMapper.map(user, User.class));
@@ -42,8 +47,13 @@ public class UserService {
     }
 
     public String createUser(User user) {
-        UserDAO userDAO = modelMapper.map(user, UserDAO.class);
-        userRepository.save(userDAO);
-        return "Success";
+        try {
+            UserDAO userDAO = modelMapper.map(user, UserDAO.class);
+            userRepository.save(userDAO);
+            return "Success";
+        }catch (Exception ex){
+            System.out.println(ex);
+            return "Failed to create user";
+        }
     }
 }

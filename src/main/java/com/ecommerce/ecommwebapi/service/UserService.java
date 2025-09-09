@@ -2,7 +2,9 @@ package com.ecommerce.ecommwebapi.service;
 
 import com.ecommerce.ecommwebapi.dao.UserDAO;
 import com.ecommerce.ecommwebapi.models.ECommerceCommonResponse;
+import com.ecommerce.ecommwebapi.models.UpdatePasswordDTO;
 import com.ecommerce.ecommwebapi.models.User;
+import com.ecommerce.ecommwebapi.models.UserCreateDTO;
 import com.ecommerce.ecommwebapi.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +22,7 @@ public class UserService {
     private UserRepository userRepository;
     public List<User> getAllUsers() {
         var users =userRepository.findAll();
-        if(users!=null && users.size()>0){
-            ModelMapper modelMapper = new ModelMapper();
-            modelMapper.typeMap(UserDAO.class, User.class)
-                    .addMappings(
-                            mapper -> {mapper.skip(User::setPassword);}
-                    );
+        if(users!=null && !users.isEmpty()){
             List<User> userList = new ArrayList<>();
             for(var user:users){
                 userList.add(modelMapper.map(user, User.class));
@@ -35,11 +32,11 @@ public class UserService {
         return null;
     }
 
-    public ECommerceCommonResponse validateUser(User user) {
+    public ECommerceCommonResponse validateUser(UpdatePasswordDTO updatePasswordDTO) {
         ECommerceCommonResponse response = new ECommerceCommonResponse();
-        var dbUser = userRepository.findByEmailId(user.getEmailId());
+        var dbUser = userRepository.findByEmailId(updatePasswordDTO.getEmailId());
         if(dbUser!=null){
-            if(dbUser.getPassword().equals(user.getPassword())) {
+            if(dbUser.getPassword().equals(updatePasswordDTO.getOldPassword())) {
                 response.setReturnCode(0);
                 response.setErrorMessage("Success");
                 return response;
@@ -55,16 +52,16 @@ public class UserService {
         }
     }
 
-    public ECommerceCommonResponse createUser(User user) {
+    public ECommerceCommonResponse createUser(UserCreateDTO userCreateDTO) {
         ECommerceCommonResponse response = new ECommerceCommonResponse();
-         var dbUser = userRepository.findByEmailId(user.getEmailId());
+         var dbUser = userRepository.findByEmailId(userCreateDTO.getEmailId());
          if(dbUser!=null){
              response.setReturnCode(1);
                 response.setErrorMessage("User already exists");
              return response;
          }
         try {
-            UserDAO userDAO = modelMapper.map(user, UserDAO.class);
+            UserDAO userDAO = modelMapper.map(userCreateDTO, UserDAO.class);
             userRepository.save(userDAO);
             response.setReturnCode(0);
             response.setErrorMessage("Success");
@@ -81,9 +78,7 @@ public class UserService {
         var dbUser = userRepository.findByEmailId(user.getEmailId());
         if(dbUser!=null){
             try {
-                dbUser.setFirstName(user.getFirstName());
-                dbUser.setLastName(user.getLastName());
-                dbUser.setAddress(user.getAddress());
+                modelMapper.map(user,dbUser);
                 userRepository.save(dbUser);
                 response.setReturnCode(0);
                 response.setErrorMessage("Success");
@@ -99,12 +94,12 @@ public class UserService {
         return response;
     }
 
-    public ECommerceCommonResponse updatePassword(User user) {
+    public ECommerceCommonResponse updatePassword(UpdatePasswordDTO updatePasswordDTO) {
         ECommerceCommonResponse response = new ECommerceCommonResponse();
-        var dbUser = userRepository.findByEmailId(user.getEmailId());
+        var dbUser = userRepository.findByEmailId(updatePasswordDTO.getEmailId());
         if(dbUser!=null){
-            if(dbUser.getPassword().equals(user.getPassword())) {
-                dbUser.setPassword(user.getPassword());
+            if(dbUser.getPassword().equals(updatePasswordDTO.getOldPassword())) {
+                dbUser.setPassword(updatePasswordDTO.getNewPassword());
                 userRepository.save(dbUser);
                 response.setReturnCode(0);
                 response.setErrorMessage("Success");

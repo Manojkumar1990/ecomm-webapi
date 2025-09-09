@@ -1,7 +1,9 @@
 package com.ecommerce.ecommwebapi.controller;
 
 import com.ecommerce.ecommwebapi.models.ECommerceCommonResponse;
+import com.ecommerce.ecommwebapi.models.UpdatePasswordDTO;
 import com.ecommerce.ecommwebapi.models.User;
+import com.ecommerce.ecommwebapi.models.UserCreateDTO;
 import com.ecommerce.ecommwebapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +17,11 @@ public class UserController {
         return userService.getAllUsers();
     }
     @PostMapping("userValidation")
-    public ECommerceCommonResponse validateUser(@RequestBody User user){
+    public ECommerceCommonResponse validateUser(@RequestBody UpdatePasswordDTO user){
         return userService.validateUser(user);
     }
     @PostMapping("createUser")
-    public ECommerceCommonResponse createUser(User user){
+    public ECommerceCommonResponse createUser(UserCreateDTO user){
         return userService.createUser(user);
     }
     @PutMapping("updateProfile")
@@ -27,7 +29,7 @@ public class UserController {
         return userService.updateProfile(user);
     }
     @PutMapping("updatePassword")
-    public ECommerceCommonResponse updatePassword(@RequestBody User user) {
+    public ECommerceCommonResponse updatePassword(@RequestBody UpdatePasswordDTO user) {
         return userService.updatePassword(user);
     }
 }

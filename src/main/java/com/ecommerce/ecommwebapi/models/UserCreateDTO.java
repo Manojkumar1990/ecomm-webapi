@@ -9,11 +9,13 @@ import java.util.Date;
 @Getter
 @Setter
 @Data
-public class User {
+public class UserCreateDTO {
     private String firstName;
     private String lastName;
     private String emailId;
     private String address;
     private Date createTime;
     private Date updateTime;
+    private String password;
+
 }

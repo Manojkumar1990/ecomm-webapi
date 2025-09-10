@@ -38,10 +38,22 @@ public class UserDAO {
     @Column(name="password")
     private String password;
 
+    @NotNull
     @Column(name="create_time",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",updatable = false)
     private Date createTime;
 
+    @NotNull
     @Column(name="update_time",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date updateTime;
+
+    @PrePersist
+    protected void onCreate() {
+        createTime = new Date();
+        updateTime = new Date();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        updateTime = new Date();
+    }
 
 }

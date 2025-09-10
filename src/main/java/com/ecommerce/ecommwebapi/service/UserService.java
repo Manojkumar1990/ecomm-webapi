@@ -115,4 +115,25 @@ public class UserService {
             return response;
         }
     }
+
+    public ECommerceCommonResponse deleteUser(String emailId) {
+        ECommerceCommonResponse response = new ECommerceCommonResponse();
+        var dbUser = userRepository.findByEmailId(emailId);
+        if(dbUser!=null){
+            try {
+                userRepository.delete(dbUser);
+                response.setReturnCode(0);
+                response.setErrorMessage("Success");
+                return response;
+            }catch (Exception ex){
+                response.setReturnCode(1);
+                response.setErrorMessage("Failed to delete user");
+                return response;
+            }
+        }else{
+            response.setReturnCode(1);
+            response.setErrorMessage("User does not exist");
+            return response;
+        }
+    }
 }

@@ -20,16 +20,20 @@ public class UserController {
     public ECommerceCommonResponse validateUser(@RequestBody UpdatePasswordDTO user){
         return userService.validateUser(user);
     }
-    @PostMapping("createUser")
-    public ECommerceCommonResponse createUser(UserCreateDTO user){
+    @PostMapping("user")
+    public ECommerceCommonResponse createUser(@RequestBody UserCreateDTO user){
         return userService.createUser(user);
     }
-    @PutMapping("updateProfile")
+    @PutMapping("user")
     public ECommerceCommonResponse updateProfile(@RequestBody User user) {
         return userService.updateProfile(user);
     }
     @PutMapping("updatePassword")
     public ECommerceCommonResponse updatePassword(@RequestBody UpdatePasswordDTO user) {
         return userService.updatePassword(user);
+    }
+    @DeleteMapping("user")
+    public ECommerceCommonResponse deleteUser(@RequestParam(name="emailId") String emailId) {
+        return userService.deleteUser(emailId);
     }
 }

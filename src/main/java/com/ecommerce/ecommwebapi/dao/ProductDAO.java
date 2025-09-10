@@ -26,7 +26,17 @@ public class ProductDAO {
 
     @Column(precision = 2)
     private double price;
+
+    @NotNull
     @Column(name = "last_updated_time", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date lastUpdatedTime;
+    @PrePersist
+    protected void onCreate() {
+        lastUpdatedTime = new Date();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        lastUpdatedTime = new Date();
+    }
     
 }

@@ -6,11 +6,15 @@ import com.ecommerce.ecommwebapi.models.UpdatePasswordDTO;
 import com.ecommerce.ecommwebapi.models.User;
 import com.ecommerce.ecommwebapi.models.UserCreateDTO;
 import com.ecommerce.ecommwebapi.repository.UserRepository;
+import com.ecommerce.ecommwebapi.util.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 @Service
@@ -32,11 +36,16 @@ public class UserService {
         return null;
     }
 
-    public ECommerceCommonResponse validateUser(UpdatePasswordDTO updatePasswordDTO) {
+    public ECommerceCommonResponse validateUser(UpdatePasswordDTO updatePasswordDTO, HttpServletResponse httpResponse) {
         ECommerceCommonResponse response = new ECommerceCommonResponse();
         var dbUser = userRepository.findByEmailId(updatePasswordDTO.getEmailId());
         if(dbUser!=null){
             if(dbUser.getPassword().equals(updatePasswordDTO.getOldPassword())) {
+                String jwtToken = JwtUtil.generateToken(dbUser.getEmailId(), dbUser.getRole().getName());
+                Cookie cookie = new Cookie("jwtToken", jwtToken);
+                cookie.setHttpOnly(true);
+                cookie.setPath("/");
+                httpResponse.addCookie(cookie);
                 response.setReturnCode(0);
                 response.setErrorMessage("Success");
                 return response;

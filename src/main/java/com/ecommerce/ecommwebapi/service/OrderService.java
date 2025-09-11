@@ -89,8 +89,7 @@ public class OrderService {
             }
         }else{
             var orders = orderRepository.findAll();
-            var orderResponse= orders.stream().map(orderDAO -> modelMapper.map(orderDAO, OrderSummaryDTO.class)).toList();
-            return orderResponse;
+            return orders.stream().map(orderDAO -> modelMapper.map(orderDAO, OrderSummaryDTO.class)).toList();
         }
         return null;
     }

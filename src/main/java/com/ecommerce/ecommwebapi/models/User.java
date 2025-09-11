@@ -16,4 +16,5 @@ public class User {
     private String address;
     private Date createTime;
     private Date updateTime;
+    private RoleDTO role;
 }

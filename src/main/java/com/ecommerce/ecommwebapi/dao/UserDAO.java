@@ -46,6 +46,10 @@ public class UserDAO {
     @Column(name="update_time",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date updateTime;
 
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleDAO role;
+
     @PrePersist
     protected void onCreate() {
         createTime = new Date();

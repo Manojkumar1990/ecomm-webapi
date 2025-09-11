@@ -1,12 +1,12 @@
 package com.ecommerce.ecommwebapi.controller;
 
-import com.ecommerce.ecommwebapi.models.ECommerceCommonResponse;
-import com.ecommerce.ecommwebapi.models.UpdatePasswordDTO;
-import com.ecommerce.ecommwebapi.models.User;
-import com.ecommerce.ecommwebapi.models.UserCreateDTO;
+import com.ecommerce.ecommwebapi.models.*;
 import com.ecommerce.ecommwebapi.service.UserService;
+import jakarta.servlet.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.http.HttpResponse;
 import java.util.*;
 @RestController
 public class UserController {
@@ -17,8 +17,8 @@ public class UserController {
         return userService.getAllUsers();
     }
     @PostMapping("userValidation")
-    public ECommerceCommonResponse validateUser(@RequestBody UpdatePasswordDTO user){
-        return userService.validateUser(user);
+    public ECommerceCommonResponse validateUser(@RequestBody UpdatePasswordDTO user, HttpServletResponse httpResponse){
+        return userService.validateUser(user,httpResponse);
     }
     @PostMapping("user")
     public ECommerceCommonResponse createUser(@RequestBody UserCreateDTO user){

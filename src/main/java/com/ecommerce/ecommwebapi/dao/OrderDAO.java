@@ -17,8 +17,12 @@ public class OrderDAO {
     @Column(nullable = false)
     private Date orderDate;
 
+    @Column(name = "order_updt_time", nullable = false)
+    private Date orderUpdatedDate;
+
     @Column(nullable = false)
     private String status;
+
 
     @Column(nullable = false)
     private Double totalAmount;
@@ -31,9 +35,17 @@ public class OrderDAO {
     @PrePersist
     public void onCreate() {
         this.orderDate = new Date();
+        this.orderUpdatedDate = new Date();
         if (this.status == null) {
             this.status = "PENDING";
         }
+        if(this.totalAmount == null) {
+            this.totalAmount = 0.0;
+        }
+    }
+    @PreUpdate
+    public void OnUpdate() {
+        this.orderUpdatedDate = new Date();
     }
 }
 

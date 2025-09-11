@@ -1,18 +1,15 @@
 package com.ecommerce.ecommwebapi.service;
 
-import com.ecommerce.ecommwebapi.dao.OrderDAO;
-import com.ecommerce.ecommwebapi.dao.OrderItemDAO;
-import com.ecommerce.ecommwebapi.models.ECommerceCommonResponse;
-import com.ecommerce.ecommwebapi.models.OrderItemDTO;
-import com.ecommerce.ecommwebapi.models.OrderRequestDTO;
-import com.ecommerce.ecommwebapi.repository.OrderItemRepository;
-import com.ecommerce.ecommwebapi.repository.OrderRepository;
-import com.ecommerce.ecommwebapi.repository.ProductRepository;
-import com.ecommerce.ecommwebapi.repository.UserRepository;
+import com.ecommerce.ecommwebapi.dao.*;
+import com.ecommerce.ecommwebapi.models.*;
+import com.ecommerce.ecommwebapi.repository.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.util.ArrayList;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -24,7 +21,10 @@ public class OrderService {
     private OrderItemRepository orderItemRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
+    @Transactional
     public ECommerceCommonResponse createOrder(OrderRequestDTO orderRequestDTO) {
         ECommerceCommonResponse response = new ECommerceCommonResponse();
         try {
@@ -32,42 +32,45 @@ public class OrderService {
             if (user != null) {
                 OrderDAO order = new OrderDAO();
                 order.setUser(user);
+                orderRepository.save(order);
                 double totalAmount = 0.0;
                 ArrayList<OrderItemDAO> orderItems = new ArrayList<>();
-                for (OrderItemDTO orderItemDTO : orderRequestDTO.getOrderItems()) {
-                    var product = productRepository.findById(orderItemDTO.getProductId()).orElse(null);
+                for (OrderItemRequestDTO orderItemRequestDTO : orderRequestDTO.getOrderItems()) {
+                    var product = productRepository.findById(orderItemRequestDTO.getProductId()).orElse(null);
                     if (product != null) {
-                        if (product.getStock() >= orderItemDTO.getQuantity()) {
-                            product.setStock(product.getStock() - orderItemDTO.getQuantity());
+                        if (product.getStock() >= orderItemRequestDTO.getQuantity()) {
+                            product.setStock(product.getStock() - orderItemRequestDTO.getQuantity());
                             productRepository.save(product);
                             OrderItemDAO orderItem = new OrderItemDAO();
                             orderItem.setOrder(order);
                             orderItem.setProduct(product);
-                            orderItem.setQuantity(orderItemDTO.getQuantity());
+                            orderItem.setQuantity(orderItemRequestDTO.getQuantity());
                             orderItem.setPrice(product.getPrice());
                             orderItemRepository.save(orderItem);
                             orderItems.add(orderItem);
-                            totalAmount+= product.getPrice() * orderItemDTO.getQuantity();
+                            totalAmount+= product.getPrice() * orderItemRequestDTO.getQuantity();
                         }else{
-                            throw new RuntimeException("Product with id "+orderItemDTO.getProductId()+" is out of stock");
+                            throw new RuntimeException("Product with id "+ orderItemRequestDTO.getProductId()+" is out of stock");
                         }
                         order.setTotalAmount(totalAmount);
-                        order.setOrderItems(orderItems);
+                        order.getOrderItems().clear();
+                        order.getOrderItems().addAll(orderItems);
                         orderRepository.save(order);
                     }else{
-                        throw new RuntimeException("Product with id "+orderItemDTO.getProductId()+" does not exist");
+                        throw new RuntimeException("Product with id "+ orderItemRequestDTO.getProductId()+" does not exist");
                     }
                 }
-
             }
             else {
                 throw new RuntimeException("User does not exist");
             }
         } catch (RuntimeException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             response.setReturnCode(1);
             response.setErrorMessage(e.getMessage());
             return response;
         }catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             response.setReturnCode(1);
             response.setErrorMessage("Failed to create order");
             return response;
@@ -75,5 +78,20 @@ public class OrderService {
         response.setReturnCode(0);
         response.setErrorMessage("Success");
         return  response;
+    }
+
+    public List<OrderSummaryDTO> getAllOrders(String userId) {
+        if(userId != null && !userId.isEmpty()){
+            var user = userRepository.findByEmailId(userId);
+            if(user != null){
+                var orders = orderRepository.findByUser(user);
+                return orders.stream().map(orderDAO -> modelMapper.map(orderDAO, OrderSummaryDTO.class)).toList();
+            }
+        }else{
+            var orders = orderRepository.findAll();
+            var orderResponse= orders.stream().map(orderDAO -> modelMapper.map(orderDAO, OrderSummaryDTO.class)).toList();
+            return orderResponse;
+        }
+        return null;
     }
 }

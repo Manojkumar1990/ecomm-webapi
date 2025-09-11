@@ -9,6 +9,6 @@ import java.util.List;
 public class OrderRequestDTO {
     private String userId;
     private String address;
-    private List<OrderItemDTO> orderItems;
+    private List<OrderItemRequestDTO> orderItems;
 
 }

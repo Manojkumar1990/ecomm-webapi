@@ -46,8 +46,8 @@ public class UserDAO {
     @Column(name="update_time",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Date updateTime;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "roleId")
     private RoleDAO role;
 
     @PrePersist

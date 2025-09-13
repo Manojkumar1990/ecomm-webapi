@@ -1,20 +1,15 @@
 package com.ecommerce.ecommwebapi.service;
 
-import com.ecommerce.ecommwebapi.dao.UserDAO;
-import com.ecommerce.ecommwebapi.models.ECommerceCommonResponse;
-import com.ecommerce.ecommwebapi.models.UpdatePasswordDTO;
-import com.ecommerce.ecommwebapi.models.User;
-import com.ecommerce.ecommwebapi.models.UserCreateDTO;
-import com.ecommerce.ecommwebapi.repository.UserRepository;
+import com.ecommerce.ecommwebapi.dao.*;
+import com.ecommerce.ecommwebapi.models.*;
+import com.ecommerce.ecommwebapi.repository.*;
 import com.ecommerce.ecommwebapi.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.modelmapper.ModelMapper;
 
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 @Service
@@ -24,12 +19,16 @@ public class UserService {
     private ModelMapper modelMapper;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
     public List<User> getAllUsers() {
         var users =userRepository.findAll();
         if(users!=null && !users.isEmpty()){
             List<User> userList = new ArrayList<>();
             for(var user:users){
-                userList.add(modelMapper.map(user, User.class));
+                var userDTO = modelMapper.map(user, User.class);
+                userDTO.setRoleName(user.getRole()!=null?user.getRole().getRoleName():null);
+                userList.add(userDTO);
             }
             return userList;
         }
@@ -41,7 +40,7 @@ public class UserService {
         var dbUser = userRepository.findByEmailId(updatePasswordDTO.getEmailId());
         if(dbUser!=null){
             if(dbUser.getPassword().equals(updatePasswordDTO.getOldPassword())) {
-                String jwtToken = JwtUtil.generateToken(dbUser.getEmailId(), dbUser.getRole().getName());
+                String jwtToken = JwtUtil.generateToken(dbUser.getEmailId(), dbUser.getRole().getRoleName());
                 Cookie cookie = new Cookie("jwtToken", jwtToken);
                 cookie.setHttpOnly(true);
                 cookie.setPath("/");
@@ -66,11 +65,13 @@ public class UserService {
          var dbUser = userRepository.findByEmailId(userCreateDTO.getEmailId());
          if(dbUser!=null){
              response.setReturnCode(1);
-                response.setErrorMessage("User already exists");
+                response.setErrorMessage("User alreay exists");
              return response;
          }
         try {
             UserDAO userDAO = modelMapper.map(userCreateDTO, UserDAO.class);
+            RoleDAO roleDAO = roleRepository.findByRoleNameIgnoreCase(userCreateDTO.getRoleName());
+            userDAO.setRole(roleDAO);
             userRepository.save(userDAO);
             response.setReturnCode(0);
             response.setErrorMessage("Success");
@@ -88,6 +89,8 @@ public class UserService {
         if(dbUser!=null){
             try {
                 modelMapper.map(user,dbUser);
+                RoleDAO roleDAO = roleRepository.findByRoleNameIgnoreCase(user.getRoleName());
+                dbUser.setRole(roleDAO);
                 userRepository.save(dbUser);
                 response.setReturnCode(0);
                 response.setErrorMessage("Success");
